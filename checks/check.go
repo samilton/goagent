@@ -15,6 +15,5 @@ type Message struct {
 }
 
 type Check interface {
-	Report() Message
 	Run() string
 }
