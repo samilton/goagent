@@ -1,6 +1,7 @@
 package checks
 
 import (
+	"github.com/samilton/peagent/types"
 	"log"
 	"strconv"
 	"syscall"
@@ -8,7 +9,7 @@ import (
 )
 
 type Disk struct {
-	Queue       chan Message
+	Queue       chan types.Message
 	Name        string
 	Interval    time.Duration
 	Partition   string
@@ -42,17 +43,15 @@ func DiskUsage(d Disk) (disk Disk) {
 	d.Used = d.Total - d.Free
 	d.PercentUsed = float64(d.Used) / float64(d.Total)
 	d.Status = GetStatus(d.PercentUsed)
-	log.Printf("All: %d\tFree: %d\tUsed: %d\tPercent: %f", d.Total, d.Free, d.Used, d.PercentUsed)
+	log.Printf("[%s]: %d\tFree: %d\tUsed: %d\tPercent: %f", d.Partition, d.Total, d.Free, d.Used, d.PercentUsed)
 	return d
 }
 
 func (e Disk) Run() {
 	for {
-		log.Printf("Performing %s Check", e.Name)
 		t := time.Now().Unix()
 		d := DiskUsage(e)
-		log.Printf("%T: %t", d, d)
-		m := Message{t, e.Name, d.Status, strconv.FormatFloat(d.PercentUsed, 'f', -1, 32)}
+		m := types.Message{t, e.Name, topic, d.Status, strconv.FormatFloat(d.PercentUsed, 'f', -1, 32)}
 		e.Queue <- m
 		time.Sleep(e.Interval * time.Second)
 	}

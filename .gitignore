@@ -1,3 +1,4 @@
 *.swp
 peagent
 output.log
+*.log
